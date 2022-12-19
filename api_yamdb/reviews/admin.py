@@ -1,8 +1,9 @@
+from custom_user.models import User
 from django.contrib import admin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from .models import Category, Genre, Title, User
+from .models import Category, Genre, Title
 
 admin.site.register(User)
 
@@ -48,7 +49,6 @@ class TitleAdmin(ImportExportModelAdmin):
     list_display = ('name', 'year', 'category',)
 
 
-@admin.register(Genre)
 class UserAdmin(ImportExportModelAdmin):
     resource_classes = [UserResource]
     list_display = ('username', 'email',

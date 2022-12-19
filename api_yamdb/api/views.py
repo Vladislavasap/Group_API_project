@@ -1,9 +1,10 @@
+from custom_user.models import User
 from django.shortcuts import render
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Genre, Title
 
 from .mixins import ListCreateDestroyViewSet
 from .permissions import IsAdmin, IsAdminOrReadOnly, UserPermission

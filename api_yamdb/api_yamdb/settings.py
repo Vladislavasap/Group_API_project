@@ -23,7 +23,8 @@ INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
     'django_filters',
-    'import-export',
+    'custom_user.apps.CustomUserConfig',
+    #'import-export',
 ]
 
 
@@ -44,7 +45,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'api_yamdb.urls'
-AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'custom_user.User'
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
     {
