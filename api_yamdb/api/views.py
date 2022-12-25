@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.core.mail import EmailMessage
 from rest_framework import permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import GetTokenSerializer, SignUpSerializer
 
 class GetToken(APIView):
