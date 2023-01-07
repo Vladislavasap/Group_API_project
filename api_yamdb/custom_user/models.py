@@ -52,7 +52,6 @@ class User(AbstractUser):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        null=True,
         blank=True
     )
     password = models.CharField(

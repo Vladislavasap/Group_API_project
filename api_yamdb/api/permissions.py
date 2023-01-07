@@ -1,6 +1,5 @@
 from custom_user.models import User
-from rest_framework.permissions import (SAFE_METHODS, BasePermission,
-                                        permissions)
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class UserPermission(BasePermission):
@@ -37,13 +36,13 @@ class IsAdmin(BasePermission):
         return request.method in ('GET', 'POST', 'PATCH', 'DELETE')
 
 
-class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
+class IsAdminModeratorOwnerOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS
+        return (request.method in SAFE_METHODS
                 or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        return (request.method in permissions.SAFE_METHODS
+        return (request.method in SAFE_METHODS
                 or request.user.is_admin
                 or request.user.is_moderator
                 or obj.author == request.user)

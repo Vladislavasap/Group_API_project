@@ -1,4 +1,3 @@
-
 from custom_user.models import User
 from rest_framework import serializers
 from reviews.models import Category, Genre, Title
@@ -12,6 +11,11 @@ class GetTokenSerializer(serializers.Serializer):
         model = User
         fields = ('username', 'confirmation_code')
 
+
+class SignUpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'username')
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователей чтобы с ними работал админ"""
