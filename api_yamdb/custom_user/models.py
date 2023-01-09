@@ -4,15 +4,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-USER = 'user'
-
-USER_ROLES = [
-    ('admin', 'Аутентифицированный пользователь'),
-    ('moderator', 'Модератор'),
-    ('user', 'Администратор'),
-]
 
 def user_validation(name):
     if name == 'me':
@@ -22,6 +13,15 @@ def user_validation(name):
         )
 
 class User(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+    USER_ROLES = [
+        (USER, 'user'),
+        (MODERATOR, 'moderator'),
+        (ADMIN, 'admin'),
+    ]
+    id = models.BigAutoField(primary_key=True)
     username = models.CharField(
         validators=(user_validation,),
         max_length=150,
@@ -49,7 +49,6 @@ class User(AbstractUser):
         default='user',
     )
     confirmation_code = models.UUIDField(
-        primary_key=True,
         default=uuid.uuid4,
         editable=False,
         blank=True
@@ -74,6 +73,11 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователи'
         ordering = ('id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_username_email',)
+        ]
 
     def __str__(self):
         return self.username

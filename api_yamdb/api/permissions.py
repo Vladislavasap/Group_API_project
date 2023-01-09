@@ -1,5 +1,6 @@
 from custom_user.models import User
-from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework.permissions import (SAFE_METHODS, BasePermission,
+                                        IsAuthenticatedOrReadOnly)
 
 
 class UserPermission(BasePermission):
@@ -46,3 +47,16 @@ class IsAdminModeratorOwnerOrReadOnly(BasePermission):
                 or request.user.is_admin
                 or request.user.is_moderator
                 or obj.author == request.user)
+
+
+class IsStaffOrAuthorOrReadOnly(IsAuthenticatedOrReadOnly):
+    """Разрешения для действий с отзывами и комментариями"""
+    def has_object_permission(self, request, view, obj):
+        return (
+            obj.author == request.user
+            or request.method in SAFE_METHODS
+            or request.user.is_authenticated
+            and request.user.role == User.ADMIN  # админ
+            or request.user.is_authenticated
+            and request.user.role == User.MODERATOR  # модератор
+        )
