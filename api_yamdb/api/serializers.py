@@ -89,44 +89,33 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         read_only = ('id',)
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для комментариев"""
-    author = serializers.SlugRelatedField(slug_field='username',
-                                          read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
-        read_only = ('id',)
-
-
-class ReviewCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания отзывов"""
+class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True,)
-    score = serializers.IntegerField(max_value=10, min_value=1)
+        slug_field='username', read_only=True)
 
     class Meta:
-        model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
-        read_only = ('id',)
+        model = Review
 
     def validate(self, data):
-        request = self.context.get('request')
-        title = self.context['view'].kwargs.get('title_id')
-        if Review.objects.filter(author=request.user, title=title).exists():
-            raise serializers.ValidationError('Your review on this title is '
-                                              'already exists')
+        if self.context['request'].method != 'POST':
+            return data
+
+        user = self.context['request'].user
+        title_id = (
+            self.context['request'].parser_context['kwargs']['title_id']
+        )
+        if Review.objects.filter(author=user, title__id=title_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв на данное произведение'
+            )
         return data
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с отзывами"""
+class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True,)
-    score = serializers.IntegerField(max_value=10, min_value=1)
+        slug_field='username', read_only=True)
 
     class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-        read_only = ('id',)
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment

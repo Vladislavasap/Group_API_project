@@ -49,14 +49,18 @@ class IsAdminModeratorOwnerOrReadOnly(BasePermission):
                 or obj.author == request.user)
 
 
-class IsStaffOrAuthorOrReadOnly(IsAuthenticatedOrReadOnly):
-    """Разрешения для действий с отзывами и комментариями"""
+class IsAuthorAdminModeratorOrReadOnly(BasePermission):
+
     def has_object_permission(self, request, view, obj):
-        return (
-            obj.author == request.user
-            or request.method in SAFE_METHODS
-            or request.user.is_authenticated
-            and request.user.role == User.ADMIN  # админ
-            or request.user.is_authenticated
-            and request.user.role == User.MODERATOR  # модератор
+        if request.method in SAFE_METHODS:
+            return True
+
+        if request.method == 'POST':
+            return request.user.is_authenticated
+
+        return request.user.is_authenticated and (
+            request.user == obj.author
+            or request.user.role == User.MODERATOR
+            or request.user.role == User.ADMIN
+            or request.user.is_superuser
         )

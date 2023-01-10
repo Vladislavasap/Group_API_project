@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,12 +13,12 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
-                          IsStaffOrAuthorOrReadOnly, UserPermission)
+                          IsAuthorAdminModeratorOrReadOnly, UserPermission)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer, MeSerializer,
-                          ReviewCreateSerializer, ReviewSerializer,
-                          SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, UserSerializer)
+                          ReviewSerializer, SignUpSerializer,
+                          TitleReadSerializer, TitleWriteSerializer,
+                          UserSerializer)
 
 
 class GetToken(APIView):
@@ -128,46 +129,34 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Отображение действий с отзывами"""
     serializer_class = ReviewSerializer
-    permission_classes = (IsStaffOrAuthorOrReadOnly,)
-
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return ReviewCreateSerializer
-        return ReviewSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          IsAuthorAdminModeratorOrReadOnly)
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_queryset(self):
-        title = get_object_or_404(
-            Title, id=self.kwargs.get('title_id')
-        )
-        return title.reviews.all()
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        reviews = title.reviews.all()
+        return reviews
 
     def perform_create(self, serializer):
-        title = get_object_or_404(
-            Title, id=self.kwargs.get('title_id')
-        )
-        serializer.save(title=title, author=self.request.user)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Отображение действий с комментариями"""
     serializer_class = CommentSerializer
-    permission_classes = (IsStaffOrAuthorOrReadOnly,)
-
-    def get_queryset(self):
-        review = get_object_or_404(
-            Review,
-            id=self.kwargs.get('review_id'),
-            title_id=self.kwargs.get('title_id'),
-        )
-        return review.comments.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          IsAuthorAdminModeratorOrReadOnly)
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     def perform_create(self, serializer):
-        review = get_object_or_404(
-            Review,
-            id=self.kwargs.get('review_id'),
-            title_id=self.kwargs.get('title_id'),
-        )
-        serializer.save(review=review, author=self.request.user)
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'),
+                                   title__id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, review=review)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'),
+                                   title__id=self.kwargs.get('title_id'))
+        return review.comments.all()
 
