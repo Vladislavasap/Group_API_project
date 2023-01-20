@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'django_filters',
     'custom_user.apps.CustomUserConfig',
-    #'import-export',
+    'import_export',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
