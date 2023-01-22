@@ -62,14 +62,15 @@ class SignUp(APIView):
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        data = {
-            'email_body': f'{user.username}, {user.confirmation_code}',
-            'to_email': user.email,
-        }
-        self.send_email(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            data = {
+                'email_body': f'{user.username}, {user.confirmation_code}',
+                'to_email': user.email,
+            }
+            self.send_email(data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -91,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
         if request.method == 'PATCH':
             serializer = MeSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:

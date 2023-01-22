@@ -15,27 +15,11 @@ class GetTokenSerializer(serializers.Serializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True, max_length=150,
+    validators=[UnicodeUsernameValidator(),])
     class Meta:
         model = User
         fields = ('email', 'username')
-
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для пользователей чтобы с ними работал админ"""
-    email = serializers.EmailField(required=True, max_length=254)
-    username = serializers.CharField(required=True, max_length=150,
-    validators=[UnicodeUsernameValidator(),])
-    last_name = serializers.CharField(required=False, max_length=150)
-    first_name = serializers.CharField(required=False, max_length=150)
-    class Meta:
-        model = User
-        fields = (
-            'username', 'email', 'bio', 'first_name',
-            'last_name', 'role',
-        )
-    def validate_email(self, value):
-        if len(value)>254 :
-            raise serializers.ValidationError("Описание ошибки")
-        return value
     
     def validate_username(self, value):
         if value == 'me':
@@ -43,6 +27,17 @@ class UserSerializer(serializers.ModelSerializer):
                 'Имя пользователя "me" не разрешено.'
             )
         return value
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для пользователей чтобы с ними работал админ"""
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'bio', 'first_name',
+            'last_name', 'role',
+        )
 
 class MeSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователей чтобы запросить
@@ -63,6 +58,7 @@ class MeSerializer(serializers.ModelSerializer):
         if len(value)>254 :
             raise serializers.ValidationError("Описание ошибки")
         return value
+
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для жанров"""
