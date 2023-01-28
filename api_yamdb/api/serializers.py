@@ -14,13 +14,12 @@ class GetTokenSerializer(serializers.Serializer):
         fields = ('username', 'confirmation_code')
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(required=True, max_length=150,
     validators=[UnicodeUsernameValidator(),])
-    class Meta:
-        model = User
-        fields = ('email', 'username')
+    email = serializers.EmailField(required=True, max_length=254)
     
+
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
@@ -28,9 +27,26 @@ class SignUpSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate(self, data):
+        if_username = User.objects.filter(username=data['username']).exists()
+        if_email = User.objects.filter(email=data['email']).exists()
+        if data['username'] == 'me':
+            raise serializers.ValidationError('недопустимое имя пользователя')
+        if User.objects.filter(username=data['username'], email=data['email']).exists():
+            return data
+        if (if_username or if_email):
+            raise serializers.ValidationError('Почта занята')
+        return data
+                               
+    class Meta:
+        model = User
+        fields = ('email', 'username')
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователей чтобы с ними работал админ"""
+
+    username = serializers.CharField(required=True, max_length=150,
+    validators=[UnicodeUsernameValidator(),])
 
     class Meta:
         model = User

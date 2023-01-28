@@ -3,6 +3,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404, render
 from rest_framework import permissions, status, viewsets, filters
+from rest_framework import generics
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -52,7 +53,9 @@ class GetToken(APIView):
         )
 
 
-class SignUp(APIView):
+class SignUp(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer = SignUpSerializer
     permission_classes = (permissions.AllowAny,)
 
     @staticmethod
@@ -63,15 +66,17 @@ class SignUp(APIView):
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.save()
+            username = serializer.validated_data.get('username')
+            email = serializer.validated_data.get('email')
+            user, created = User.objects.get_or_create(
+                username=username, email=email)
             data = {
                 'email_body': f'{user.username}, {user.confirmation_code}',
                 'to_email': user.email,
             }
-            self.send_email(data)
+            self.send_email(data)    
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """Отображение действий с пользователями"""
