@@ -1,7 +1,7 @@
 from custom_user.models import User
 from django.core.mail import EmailMessage
 from django.db.models import Avg
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets, filters
 from rest_framework import generics
 from rest_framework.decorators import action
@@ -10,8 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title
-from django_filters.rest_framework import DjangoFilterBackend
+from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
@@ -45,8 +44,6 @@ class GetToken(APIView):
                 {'token': str(token)},
                 status=status.HTTP_201_CREATED
             )
-        a = str(data.get('confirmation_code'))
-        b = str(user.confirmation_code)
         return Response(
             {'confirmation_code': 'Ошибка кода подтверждения'},
             status=status.HTTP_400_BAD_REQUEST
@@ -74,9 +71,10 @@ class SignUp(generics.CreateAPIView):
                 'email_body': f'{user.username}, {user.confirmation_code}',
                 'to_email': user.email,
             }
-            self.send_email(data)    
+            self.send_email(data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """Отображение действий с пользователями"""
@@ -89,10 +87,8 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     http_method_names = ('get', 'post', 'patch', 'delete')
 
-
     @action(detail=False, methods=['get', 'patch'],
-        permission_classes=[UserPermission])
-
+            permission_classes=[UserPermission])
     def me(self, request):
         user = request.user
         if request.method == 'PATCH':
@@ -126,6 +122,7 @@ class CategoriesViewSet(ListCreateDestroyViewSet):
         category.delete()
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
+
 class GenreViewSet(ListCreateDestroyViewSet):
     '''Работа с жанрами для произведений'''
     queryset = Genre.objects.all()
@@ -134,7 +131,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    
+
     @action(
         detail=False, methods=['delete'],
         url_path=r'(?P<slug>\w+)',
@@ -153,7 +150,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(Avg('reviews__score'))
     pagination_class = PageNumberPagination
     filterset_class = TitleFilter
-    
+
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
@@ -191,4 +188,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'),
                                    title__id=self.kwargs.get('title_id'))
         return review.comments.all()
-
