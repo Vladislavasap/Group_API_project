@@ -15,7 +15,7 @@ defusedxml==0.7.1
 diff-match-patch==20200713
 django-filter==22.1
 django-import-export==3.0.2
-djangorestframework-simplejwt==5.2.2
+rest_framework_simplejwt==5.2.2
 et-xmlfile==1.1.0
 flake8==5.0.4
 idna==3.4
