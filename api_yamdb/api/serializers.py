@@ -45,8 +45,6 @@ class SignUpSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователей чтобы с ними работал админ"""
 
-    username = serializers.CharField(required=True, max_length=150,
-    validators=[UnicodeUsernameValidator(),])
 
     class Meta:
         model = User

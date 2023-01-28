@@ -1,16 +1,10 @@
 import uuid
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.db import models
 
-
-def user_validation(name):
-    if name == 'me':
-        raise ValidationError(
-            ('Использовать имя <me> в качестве username запрещено.'),
-            params={'value': name},
-        )
 
 class User(AbstractUser):
     USER = 'user'
@@ -23,7 +17,7 @@ class User(AbstractUser):
     ]
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(
-        validators=(user_validation,),
+        validators=[UnicodeUsernameValidator(),],
         max_length=150,
         unique=True,
     )
