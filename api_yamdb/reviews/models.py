@@ -6,7 +6,7 @@ from .validators import validate_year
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, db_index=True)
     slug = models.SlugField(max_length=50, unique=True)
 
     class Meta:
@@ -18,7 +18,7 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, db_index=True)
     slug = models.SlugField(unique=True)
 
     class Meta:
@@ -30,15 +30,16 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, db_index=True)
     year = models.PositiveSmallIntegerField(
         verbose_name='Дата выхода',
         validators=(validate_year,),
     )
-    description = models.TextField()
+    description = models.TextField(verbose_name='Описание')
     genre = models.ManyToManyField(
         Genre,
         blank=True,
+        verbose_name='Жанр',
         related_name='titles'
     )
     category = models.ForeignKey(
@@ -46,12 +47,8 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        verbose_name='Категория',
         related_name='titles'
-    )
-    rating = models.IntegerField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
     )
 
     class Meta:

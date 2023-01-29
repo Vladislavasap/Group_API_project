@@ -1,5 +1,5 @@
-from custom_user.models import User
 from rest_framework.permissions import (SAFE_METHODS, BasePermission)
+from custom_user.models import User
 
 
 class UserPermission(BasePermission):

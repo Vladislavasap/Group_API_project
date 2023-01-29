@@ -19,7 +19,7 @@ class SignUpSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True, max_length=254)
 
     def validate_username(self, value):
-        if value == 'me':
+        if value.lower() == 'me':
             raise serializers.ValidationError(
                 'Имя пользователя "me" не разрешено.'
             )
@@ -28,7 +28,7 @@ class SignUpSerializer(serializers.Serializer):
     def validate(self, data):
         if_username = User.objects.filter(username=data['username']).exists()
         if_email = User.objects.filter(email=data['email']).exists()
-        if data['username'] == 'me':
+        if data['username'].lower() == 'me':
             raise serializers.ValidationError('недопустимое имя пользователя')
         if User.objects.filter(username=data['username'],
                                email=data['email']).exists():
@@ -71,7 +71,7 @@ class MeSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         if len(value) > 254:
-            raise serializers.ValidationError("Описание ошибки")
+            raise serializers.ValidationError("Слишком длинный email")
         return value
 
 

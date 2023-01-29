@@ -40,7 +40,7 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=128,
         choices=USER_ROLES,
-        default='user',
+        default=USER,
     )
     confirmation_code = models.UUIDField(
         default=uuid.uuid4,
