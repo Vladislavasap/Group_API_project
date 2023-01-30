@@ -1,7 +1,7 @@
-from custom_user.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from custom_user.models import User
 from .validators import validate_year
 
 

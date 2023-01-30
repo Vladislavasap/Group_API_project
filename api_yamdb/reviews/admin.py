@@ -1,8 +1,8 @@
-from custom_user.models import User
 from django.contrib import admin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
+from custom_user.models import User
 from .models import Category, Genre, Title
 
 admin.site.register(User)
