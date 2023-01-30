@@ -69,11 +69,6 @@ class MeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('role',)
 
-    def validate_email(self, value):
-        if len(value) > 254:
-            raise serializers.ValidationError("Слишком длинный email")
-        return value
-
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для жанров"""
