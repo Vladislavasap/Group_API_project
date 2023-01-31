@@ -8,9 +8,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Review, Title
 
 from custom_user.models import User
+from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
